@@ -44,14 +44,12 @@ class ReinforcePlugin implements Plugin<Project> {
 
                         // 创建task，分为依赖assemble和不依赖两种
                         // 360加固
-                        Task _360Task = create360Task("", signConfig, assembleTask, apkPath, jiaguOutput)
-                        create360Task("Only", signConfig, assembleTask, apkPath, jiaguOutput)
-                        // 发布到蒲公英
-                        createPublishApkTask("publishToPgy${Util.toUpperFirstChar(buildTypeName)}", _360Task, jiaguOutput, buildTypeName)
-                        createPublishApkTask("publishToPgy${Util.toUpperFirstChar(buildTypeName)}Only", null, jiaguOutput, buildTypeName)
+                        Task _360Task = create360Task(signConfig, assembleTask, apkPath, jiaguOutput)
 
-                        if ("release".equalsIgnoreCase(buildTypeName)) {
-                            createChannelTask("buildChannel${Util.toUpperFirstChar(buildTypeName)}", flavorName, versionCode, versionName, buildTypeName)
+                        if ("releaseChannel".equalsIgnoreCase(buildTypeName)) {
+                            createChannelTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", _360Task, flavorName, versionCode, versionName, buildTypeName)
+                        } else {
+                            createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", _360Task, jiaguOutput, buildTypeName)
                         }
                     }
                 }
@@ -59,31 +57,33 @@ class ReinforcePlugin implements Plugin<Project> {
         }
     }
 
-    private Task createChannelTask(taskName, flavorName, versionCode, versionName, buildTypeName) {
+    private Task createChannelTask(taskName, jiaguTask, flavorName, versionCode, versionName, buildTypeName) {
         ChannelTask task = project.tasks.create(taskName, ChannelTask)
         task.flavorName = flavorName
         task.versionCode = versionCode
         task.versionName = versionName
         task.buildTypeName = buildTypeName
-        task.setGroup("jiagu_sign")
+        task.setGroup("reinforce")
 
+        if (jiaguTask != null)
+            task.dependsOn(jiaguTask)
         println "创建${taskName}完毕"
         return task
     }
 
-    private Task create360Task(taskNameSuffix, signConfig, assembleTask, apkPath, outputPath) {
+    private Task create360Task(signConfig, assembleTask, apkPath, jiaguOutput) {
         def subName = assembleTask.name.replace("assemble", "")
-        def taskName = "_360Jiagu${subName}${taskNameSuffix}"
+        def taskName = "_360Jiagu${subName}"
 
         ReinforceTask360 task = project.tasks.create(taskName, ReinforceTask360)
         task.signingConfig = signConfig
         task.account = m360Extension.account
         task.password = m360Extension.password
         task.apkPath = apkPath
+        task.outputApk = jiaguOutput
 
-        task.setGroup("jiagu_sign")
-        if (Util.isEmpty(taskNameSuffix))
-            task.dependsOn(assembleTask)
+        task.setGroup("reinforce")
+        task.dependsOn(assembleTask)
         println "创建${taskName}完毕"
 
         return task
@@ -100,7 +100,7 @@ class ReinforcePlugin implements Plugin<Project> {
         task.dingTalkUrl = mPgyExtension.dingTalkUrl
         task.dingTalkSec = mPgyExtension.dingTalkSec
 
-        task.setGroup("jiagu_sign")
+        task.setGroup("reinforce")
         if (jiaguTask != null)
             task.dependsOn(jiaguTask)
 
@@ -108,4 +108,5 @@ class ReinforcePlugin implements Plugin<Project> {
 
         return task
     }
+
 }

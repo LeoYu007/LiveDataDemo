@@ -6,6 +6,8 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
+import java.text.SimpleDateFormat
+
 /**
  * 输出渠道包
  */
@@ -27,7 +29,7 @@ class ChannelTask extends DefaultTask {
     void buildChannel() {
         println "开始构建渠道包"
 
-        def apkPath = project.buildDir.absolutePath + "/channel_base.apk"
+        def apkPath = project.buildDir.absolutePath + File.separator + "channel_base.apk"
         if (!new File(apkPath).exists()) {
             println "渠道基线包不存在：apkPath = $apkPath"
             println "尝试先执行 _360JiaguRelease 任务"
@@ -35,9 +37,12 @@ class ChannelTask extends DefaultTask {
         }
         println "apkPath = $apkPath"
 
+        def sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm")
+        String dirName = sdf.format(new Date())
+
         def jarPath = downloadVasdollyJar(project)
-        def channelPath = project.projectDir.absolutePath + "/channel.txt"
-        def output = project.buildDir.absolutePath + "/channelApk"
+        def channelPath = project.projectDir.absolutePath + File.separator + "channel.txt"
+        def output = project.buildDir.absolutePath + File.separator + "channelApk${File.separator}${dirName}"
 
         println "渠道配置文件:$channelPath"
         println "渠道包输出目录 = $output"
@@ -59,20 +64,34 @@ class ChannelTask extends DefaultTask {
         // 重命名渠道包，添加buildType、versionName等信息
 
         println "开始重命名渠道包"
+        String outNamePre = ""
+        if (buildTypeName.contains("Channel")) {
+            buildTypeName = buildTypeName.replace("Channel", "")
+        }
+        if (flavorName == null || "" == flavorName) {
+            outNamePre = "app-${buildTypeName}-v${versionName}"
+        } else {
+            outNamePre = "app-${flavorName}-${buildTypeName}-v${versionName}"
+        }
+
         new File(output).eachFile { f ->
             println "原文件名：${f.name}"
-            def outName = "${flavorName}-${buildTypeName}-v${versionName}-${f.name}"
+            def outName = "${outNamePre}-${f.name.replace("channel_", "")}"
+
             println "输出文件名：${outName}"
             f.renameTo(new File(output, outName))
         }
         println "重命名渠道包完成"
 
-        println "开始上传渠道包到服务器存档"
+        uploadToServer()
+    }
 
+    private void uploadToServer() {
+//        println "开始上传渠道包到服务器存档"
         // 上传渠道包到服务器存档
         // TODO
 
-        println "上传完成"
+//        println "上传完成"
     }
 
     private static String downloadVasdollyJar(Project project) {

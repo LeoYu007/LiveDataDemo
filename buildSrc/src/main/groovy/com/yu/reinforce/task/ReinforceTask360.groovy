@@ -21,6 +21,8 @@ class ReinforceTask360 extends DefaultTask {
     String account
     @Input
     String password
+    @Input
+    String outputApk
 
     @TaskAction
     void doReinforceAndSign() {
@@ -44,6 +46,10 @@ class ReinforceTask360 extends DefaultTask {
                     "channel_base.apk"
                 }
             }
+
+            // 重命名apk
+            new File(signedApk).renameTo(new File(outputApk))
+
             println "拷贝加固后的apk到channel_base完成"
         } else {
             println '加固失败，未找到360加固的apk!'
@@ -52,11 +58,11 @@ class ReinforceTask360 extends DefaultTask {
 
     private String cleanDir() {
         // 加固输出目录
-        String outputDir = "${new File(apkPath).getParentFile().absolutePath}/jiagu"
+        String outputDir = "${new File(apkPath).getParentFile().absolutePath}${File.separator}jiagu"
         // 上次的渠道基线包
-        String oldApkPath = "${project.buildDir.absolutePath}/channel_base.apk"
+        String oldApkPath = "${project.buildDir.absolutePath}${File.separator}channel_base.apk"
         // 渠道包输出目录
-        String channelDir = "${project.buildDir.absolutePath}/channelApk"
+        String channelDir = "${project.buildDir.absolutePath}${File.separator}channelApk"
 
         project.delete {
             delete outputDir, oldApkPath, channelDir
@@ -68,6 +74,5 @@ class ReinforceTask360 extends DefaultTask {
         }
         return outputDir
     }
-
 
 }
