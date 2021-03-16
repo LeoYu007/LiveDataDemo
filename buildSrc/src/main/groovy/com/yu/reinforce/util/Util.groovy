@@ -1,44 +1,16 @@
 package com.yu.reinforce.util
 
 
-import com.android.builder.model.SigningConfig
 import okhttp3.*
 
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
+
 /**
- * 用脚本签名apk
- * @param apkPath
- * @param shellPath
- * @return
+ * 执行命令
+ * @param command
  */
-static String signApk(String apkPath, String shellPath, SigningConfig signingConfig, String jarPath, String outputPath = "") {
-    println "开始签名 apkPath = ${apkPath}"
-
-    def keystore = signingConfig.storeFile.absolutePath
-    def storePass = signingConfig.storePassword
-    def alias = signingConfig.keyAlias
-    def keypass = signingConfig.keyPassword
-
-    def output = outputPath
-    if (isEmpty(output)) {
-        output = apkPath.substring(0, apkPath.lastIndexOf('.'))
-                .replace("unsigned", "") + "_signed.apk"
-    }
-
-    doCommand('sh ' + shellPath + ' ' + keystore + ' ' + alias + ' ' + storePass + ' ' + keypass + ' ' + output + ' ' + apkPath + ' ' + jarPath)
-    println "签名完成 output = ${output}"
-    return output
-}
-
-// 执行360加固
-static def reinforceBy360(String apkPath, String shellPath, String userName, String password, String output, String jarPath) {
-    println "开始加固 apkPath = ${apkPath}"
-    doCommand('sh ' + shellPath + ' ' + userName + ' ' + password + ' ' + apkPath + ' ' + output + ' ' + jarPath)
-    println "加固完成 output = ${output}"
-}
-
 static def doCommand(command) {
     println('run command:' + command)
     def process = Runtime.getRuntime().exec(command)

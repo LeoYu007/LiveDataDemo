@@ -80,7 +80,6 @@ class ReinforcePlugin implements Plugin<Project> {
         task.account = m360Extension.account
         task.password = m360Extension.password
         task.apkPath = apkPath
-        task.outputPath = outputPath
 
         task.setGroup("jiagu_sign")
         if (Util.isEmpty(taskNameSuffix))

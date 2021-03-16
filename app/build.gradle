@@ -1,4 +1,6 @@
 import java.util.function.BiConsumer
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 
 plugins {
     id 'com.android.application'
@@ -74,23 +76,11 @@ reinforceConfig360 {
 }
 
 task _test() {
-
     doLast {
-//        def path = project.parent.rootDir.absolutePath + "/local.properties"
-//        Properties p = new Properties()
-//        p.load(new FileInputStream(path))
-//
-//        println "sdk.dir = ${p.getProperty("sdk.dir")}"
-//        println "buildToolsVersion = ${project.android.buildToolsVersion}"
+//        File zip = new File("/Users/yuli/Downloads/360jiagubao.zip")
+//        unzipFileByKeyword(zip, new File(zip.parentFile, "360jiagubao"), null)
 
-
-        Map<String, String> env = System.getenv()
-        env.forEach(new BiConsumer<String, String>() {
-            @Override
-            void accept(String s, String s2) {
-                println "$s =  $s2"
-            }
-        })
-
+        println "============${System.properties["os.name"]}"
     }
 }
+
