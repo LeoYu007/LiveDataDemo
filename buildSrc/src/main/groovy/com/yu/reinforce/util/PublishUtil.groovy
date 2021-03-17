@@ -47,8 +47,12 @@ static PublishMessage uploadToPgy(String apiKey, String apkPath, String password
         def appUrl = "https://www.pgyer.com/${shortCutUrl}"
         def title = "Android-${appName}-${appVersion}-${buildTypeName} (build $pgyBuildVersion)版本更新了"
         def message = "更新时间：${appUpdated} "
+        if (password != null && password != "") {
+            message = "密码：$password  $message"
+        }
 
         println title
+        println message
         println "appUrl = $appUrl"
 
         return new PublishMessage(title, message, appUrl, appQRCodeURL)
@@ -116,6 +120,7 @@ private static String buildSignature(Long timestamp, String secret) {
  * @return
  */
 private static String buildDingTalkUrl(String baseUrl, String secret) {
+    if (secret == null || secret == "") return baseUrl
     Long timestamp = System.currentTimeMillis()
     String signature = buildSignature(timestamp, secret)
     String encodeString = URLEncoder.encode(signature)

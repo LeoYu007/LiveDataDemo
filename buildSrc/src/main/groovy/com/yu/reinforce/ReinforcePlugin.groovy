@@ -35,12 +35,14 @@ class ReinforcePlugin implements Plugin<Project> {
                 }
 
                 variant.outputs.each {
-                    if (!"debug".equalsIgnoreCase(buildTypeName)) {
-
-                        String apkPath = it.getOutputFile().absolutePath
-                        String jiaguOutput = it.getOutputFile().getParentFile().absolutePath + File.separator + "jiagu" + File.separator + "temp_jiagu_signed.apk"
-                        println "待加固apk path = ${apkPath}"
-                        println "加固后输出apk path = ${jiaguOutput}"
+                    String apkPath = it.getOutputFile().absolutePath
+                    String jiaguOutput = it.getOutputFile().getParentFile().absolutePath + File.separator + "jiagu" + File.separator + "temp_jiagu_signed.apk"
+//                    println "待加固apk path = ${apkPath}"
+//                    println "加固后输出apk path = ${jiaguOutput}"
+                    if ("debug".equalsIgnoreCase(buildTypeName)) {
+                        def debugApkPath = project.buildDir.absolutePath + File.separator + "outputs" + File.separator + "apk" + File.separator + "debug" + File.separator + "app-debug.apk"
+                        createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", assembleTask, debugApkPath, buildTypeName)
+                    } else {
 
                         // 创建task，分为依赖assemble和不依赖两种
                         // 360加固
