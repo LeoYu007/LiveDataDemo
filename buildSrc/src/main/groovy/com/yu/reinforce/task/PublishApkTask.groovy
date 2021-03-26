@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
  */
 class PublishApkTask extends DefaultTask {
 
-    /**
+    /*
      * 安装密码，若为空则不需要密码
      */
     @Input

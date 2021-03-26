@@ -6,8 +6,6 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-import java.text.SimpleDateFormat
-
 /**
  * 输出渠道包
  */
@@ -37,12 +35,9 @@ class ChannelTask extends DefaultTask {
         }
         println "apkPath = $apkPath"
 
-        def sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm")
-        String dirName = sdf.format(new Date())
-
         def jarPath = downloadVasdollyJar(project)
         def channelPath = project.projectDir.absolutePath + File.separator + "channel.txt"
-        def output = project.buildDir.absolutePath + File.separator + "channelApk${File.separator}${dirName}"
+        def output = project.buildDir.absolutePath + File.separator + "channelApk${File.separator}${versionName}"
 
         println "渠道配置文件:$channelPath"
         println "渠道包输出目录 = $output"

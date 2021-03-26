@@ -42,16 +42,18 @@ class ReinforcePlugin implements Plugin<Project> {
                     if ("debug".equalsIgnoreCase(buildTypeName)) {
                         def debugApkPath = project.buildDir.absolutePath + File.separator + "outputs" + File.separator + "apk" + File.separator + "debug" + File.separator + "app-debug.apk"
                         createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", assembleTask, debugApkPath, buildTypeName)
+                        createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, debugApkPath, buildTypeName)
                     } else {
-
                         // 创建task，分为依赖assemble和不依赖两种
                         // 360加固
                         Task _360Task = create360Task(signConfig, assembleTask, apkPath, jiaguOutput)
 
                         if ("releaseChannel".equalsIgnoreCase(buildTypeName)) {
                             createChannelTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", _360Task, flavorName, versionCode, versionName, buildTypeName)
+                            createChannelTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, flavorName, versionCode, versionName, buildTypeName)
                         } else {
                             createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", _360Task, jiaguOutput, buildTypeName)
+                            createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, jiaguOutput, buildTypeName)
                         }
                     }
                 }
@@ -75,8 +77,9 @@ class ReinforcePlugin implements Plugin<Project> {
 
     private Task create360Task(signConfig, assembleTask, apkPath, jiaguOutput) {
         def subName = assembleTask.name.replace("assemble", "")
-        def taskName = "_360Jiagu${subName}"
 
+        // 创建加固task
+        def taskName = "_360Jiagu${subName}"
         ReinforceTask360 task = project.tasks.create(taskName, ReinforceTask360)
         task.signingConfig = signConfig
         task.account = m360Extension.account
@@ -86,6 +89,17 @@ class ReinforcePlugin implements Plugin<Project> {
 
         task.setGroup("reinforce")
         task.dependsOn(assembleTask)
+
+        // 创建加固不依赖assembleTask的加固任务
+        def taskName2 = "${taskName}Only"
+        ReinforceTask360 task2 = project.tasks.create(taskName2, ReinforceTask360)
+        task2.signingConfig = signConfig
+        task2.account = m360Extension.account
+        task2.password = m360Extension.password
+        task2.apkPath = apkPath
+        task2.outputApk = jiaguOutput
+        task2.setGroup("reinforce")
+
         println "创建${taskName}完毕"
 
         return task
@@ -110,5 +124,4 @@ class ReinforcePlugin implements Plugin<Project> {
 
         return task
     }
-
 }

@@ -74,5 +74,4 @@ class ReinforceTask360 extends DefaultTask {
         }
         return outputDir
     }
-
 }
