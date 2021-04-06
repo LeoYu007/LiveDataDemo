@@ -54,9 +54,6 @@ android {
                     APP_NAME: "@string/app_name",
             ]
         }
-        releaseChannel {
-            initWith(release)
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

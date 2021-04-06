@@ -48,12 +48,13 @@ class ReinforcePlugin implements Plugin<Project> {
                         // 360加固
                         Task _360Task = create360Task(signConfig, assembleTask, apkPath, jiaguOutput)
 
-                        if ("releaseChannel".equalsIgnoreCase(buildTypeName)) {
-                            createChannelTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", _360Task, flavorName, versionCode, versionName, buildTypeName)
-                            createChannelTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, flavorName, versionCode, versionName, buildTypeName)
-                        } else {
-                            createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", _360Task, jiaguOutput, buildTypeName)
-                            createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, jiaguOutput, buildTypeName)
+                        createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", _360Task, jiaguOutput, buildTypeName)
+                        createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, jiaguOutput, buildTypeName)
+
+                        // 单独为release生成两个渠道包任务
+                        if ("release".equalsIgnoreCase(buildTypeName)) {
+                            createChannelTask("buildReleaseChannelApk", _360Task, flavorName, versionCode, versionName, buildTypeName)
+                            createChannelTask("buildReleaseChannelApkOnly", null, flavorName, versionCode, versionName, buildTypeName)
                         }
                     }
                 }
