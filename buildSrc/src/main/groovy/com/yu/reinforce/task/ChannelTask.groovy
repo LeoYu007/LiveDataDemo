@@ -60,9 +60,7 @@ class ChannelTask extends DefaultTask {
 
         println "开始重命名渠道包"
         String outNamePre = ""
-        if (buildTypeName.contains("Channel")) {
-            buildTypeName = buildTypeName.replace("Channel", "")
-        }
+
         if (flavorName == null || "" == flavorName) {
             outNamePre = "app-${buildTypeName}-v${versionName}"
         } else {
