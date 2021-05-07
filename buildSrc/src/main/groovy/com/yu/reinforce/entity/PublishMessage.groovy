@@ -2,15 +2,27 @@ package com.yu.reinforce.entity
 
 
 class PublishMessage {
-    String title
-    String message
-    String url
-    String imageUrl
 
-    PublishMessage(String title, String message, String url, String imageUrl) {
-        this.title = title
-        this.message = message
-        this.imageUrl = imageUrl
-        this.url = url
+    String appName
+    String appVersion
+    String appUrl
+    String qrCodeUrl
+    String branchName
+    String buildType
+    String password
+    String date
+    String pgyBuildVersion
+
+    PublishMessage(String appName, String appVersion, String appUrl, String qrCodeUrl, String branchName, String buildType, String password, String date, String pgyBuildVersion) {
+        this.appName = appName
+        this.appVersion = appVersion
+        this.appUrl = appUrl
+        this.qrCodeUrl = qrCodeUrl
+        this.branchName = branchName
+        this.buildType = buildType
+        this.password = password
+        this.date = date
+        this.pgyBuildVersion = pgyBuildVersion
     }
+
 }

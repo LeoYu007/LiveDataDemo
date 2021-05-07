@@ -43,46 +43,38 @@ static PublishMessage uploadToPgy(String apiKey, String apkPath, String password
         def appVersion = data.optString("buildVersion")
         def appUpdated = data.optString("buildUpdated")
         def pgyBuildVersion = data.optString("buildBuildVersion")
-
         def appUrl = "https://www.pgyer.com/${shortCutUrl}"
-        def title = "Android-${appName}-${appVersion}-${buildTypeName} (build $pgyBuildVersion)版本更新了"
-        def message = "更新时间：${appUpdated} "
-        if (password != null && password != "") {
-            message = "密码：$password  $message"
-        }
+        def branchName = getGitBranch()
 
-        println title
-        println message
-        println "appUrl = $appUrl"
-
-        return new PublishMessage(title, message, appUrl, appQRCodeURL)
+        return new PublishMessage(appName, appVersion, appUrl, appQRCodeURL, branchName, buildTypeName, password, appUpdated, pgyBuildVersion)
     }
     return null
 }
-/**
- * 发送钉钉机器人消息
- * @param project
- * @param dingTalkUrl
- * @param dingTalkSec
- * @param title
- * @param message
- * @param url
- * @param imageUrl
- * @return
- */
+
 static def sendMessageToDingDing(project, String dingTalkUrl, String dingTalkSec, PublishMessage message) {
     if (Util.isNotEmpty(dingTalkUrl) && Util.isNotEmpty(dingTalkSec)) {
         String dingDingUrl = buildDingTalkUrl(dingTalkUrl, dingTalkSec)
 
-        JSONObject linkData = new JSONObject()
-        linkData.put("title", message.title)
-        linkData.put("text", message.message)
-        linkData.put("picUrl", message.imageUrl)
-        linkData.put("messageUrl", message.url)
+        String pwdLine = ""
+        if (message.password != null && message.password.length() != 0) {
+            pwdLine = "- 密码：${message.password}"
+        }
+
+        def title = "Android-${message.appName}-${message.appVersion}-${message.buildType} (build ${message.pgyBuildVersion})版本更新"
+        def text = """
+### ${title}
+- 分支：${message.branchName}
+- 更新时间：${message.date}
+- [点击下载应用](${message.appUrl})
+${pwdLine}
+"""
+        JSONObject data = new JSONObject()
+        data.put("title", title)
+        data.put("text", text)
 
         JSONObject obj = new JSONObject()
-        obj.put("link", linkData)
-        obj.put("msgtype", "link")
+        obj.put("markdown", data)
+        obj.put("msgtype", "markdown")
 
         def command = "curl -H 'Content-Type: application/json' -d '${obj.toString()}' '${dingDingUrl}'"
         println "command = $command"
@@ -125,4 +117,33 @@ private static String buildDingTalkUrl(String baseUrl, String secret) {
     String signature = buildSignature(timestamp, secret)
     String encodeString = URLEncoder.encode(signature)
     return "${baseUrl}&timestamp=${timestamp}&sign=${encodeString}"
+}
+
+
+private static String getGitBranch() {
+    //判断是否处于Jenkins编译环境
+    if (isInJenkins()) {
+        Map<String, String> env = System.getenv()
+        return env["BRANCH"]
+    } else {
+        return 'git symbolic-ref --short -q HEAD'.execute().text.trim()
+    }
+}
+
+private static boolean isInJenkins() {
+    Map<String, String> map = System.getenv()
+    if (map == null) {
+        return false
+    }
+    String str = map.get("Path")
+    if (str != null) {
+        return false
+    } else {
+        str = ""
+        Iterator it = map.iterator()
+        while (it.hasNext()) {
+            str += it.next()
+        }
+        return str.contains("jenkins")
+    }
 }

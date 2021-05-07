@@ -69,7 +69,7 @@ pgyConfig {
     // 蒲公英的key
     apiKey = "216968547e20f64c15ac3e24a69f2f82"
     // 包的下载密码，不设置则为公开发布
-    password = "haixue"
+    password = ""
     // 有效期，单位天，如果小于等于0则长期有效
     deadTime = 10
 
@@ -110,19 +110,5 @@ reinforceConfig360 {
     // 360的账号
     account = "18111618870"
     password = "Z9V4x@Umt7vnJAy"
-}
-
-task _test() {
-    doLast {
-
-        File temp = new File(project.rootDir,"channel123.txt")
-        project.copy {
-            from "./channel000.txt"
-            into temp.parentFile
-            rename {
-                temp.name
-            }
-        }
-    }
 }
 
