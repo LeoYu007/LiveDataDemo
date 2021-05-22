@@ -39,23 +39,16 @@ class ReinforcePlugin implements Plugin<Project> {
                     String jiaguOutput = it.getOutputFile().getParentFile().absolutePath + File.separator + "jiagu" + File.separator + "temp_jiagu_signed.apk"
 //                    println "待加固apk path = ${apkPath}"
 //                    println "加固后输出apk path = ${jiaguOutput}"
-                    if ("debug".equalsIgnoreCase(buildTypeName)) {
-                        def debugApkPath = project.buildDir.absolutePath + File.separator + "outputs" + File.separator + "apk" + File.separator + "debug" + File.separator + "app-debug.apk"
-                        createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", assembleTask, debugApkPath, buildTypeName)
-                        createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, debugApkPath, buildTypeName)
-                    } else {
-                        // 创建task，分为依赖assemble和不依赖两种
-                        // 360加固
+
+                    // 打包后发布到蒲公英（不加固）
+                    createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", assembleTask, apkPath, buildTypeName)
+                    createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, apkPath, buildTypeName)
+
+                    // 单独为release生成两个渠道包任务，渠道包需要加固
+                    if ("release".equalsIgnoreCase(buildTypeName)) {
                         Task _360Task = create360Task(signConfig, assembleTask, apkPath, jiaguOutput)
-
-                        createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}Apk", _360Task, jiaguOutput, buildTypeName)
-                        createPublishApkTask("build${Util.toUpperFirstChar(buildTypeName)}ApkOnly", null, jiaguOutput, buildTypeName)
-
-                        // 单独为release生成两个渠道包任务
-                        if ("release".equalsIgnoreCase(buildTypeName)) {
-                            createChannelTask("buildReleaseChannelApk", _360Task, flavorName, versionCode, versionName, buildTypeName)
-                            createChannelTask("buildReleaseChannelApkOnly", null, flavorName, versionCode, versionName, buildTypeName)
-                        }
+                        createChannelTask("buildReleaseChannelApk", _360Task, flavorName, versionCode, versionName, buildTypeName)
+                        createChannelTask("buildReleaseChannelApkOnly", null, flavorName, versionCode, versionName, buildTypeName)
                     }
                 }
             }
